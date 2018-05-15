@@ -31,6 +31,7 @@ from io import StringIO
 from matplotlib import pyplot as plt
 from utils import label_map_util
 from utils import visualization_utils as vis_util
+from std_msgs.msg import Int32
 
 if tf.__version__ < '1.4.0':
     raise ImportError(
@@ -42,6 +43,8 @@ class object_detector:
     def __init__(self):
         self.image_pub = rospy.Publisher(
             "/detector_node/image", Image, queue_size=1)
+        self.detection = rospy.Publisher(
+            "/detector_node/recognizer", Int32, queue_size=1)
         self.bridge = CvBridge()
         self.image_sub = rospy.Subscriber(
             "/raspicam_node/image/compressed", CompressedImage, self.callback, queue_size=1, buff_size=2**24)
@@ -161,6 +164,8 @@ class object_detector:
                     try:
                         self.image_pub.publish(
                             self.bridge.cv2_to_imgmsg(img_np, "bgr8"))
+                        if(scores[0][np.argmax(scores)] > 0.6):
+                            self.detection.publish(classes[0][0])
                         # cv2.imwrite('res/' + str(msg.header.stamp) +'camera_image.jpeg', img_np)
                         rospy.loginfo("processed the IMage")
                         ret = False
@@ -171,6 +176,7 @@ class object_detector:
 def main(args):
     ic = object_detector()
     rospy.init_node('object_detector', anonymous=True)
+
     try:
         rospy.spin()
     except KeyboardInterrupt:

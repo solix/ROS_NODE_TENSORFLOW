@@ -74,8 +74,7 @@ class object_detector:
         #         tar_file.extract(file, os.getcwd())
 
         # ## Load a (frozen) Tensorflow model into memory.
-        config = tf.ConfigProto()
-        config.gpu_options.allow_growth = True
+
         self.detection_graph = tf.Graph()
         with self.detection_graph.as_default():
             od_graph_def = tf.GraphDef()

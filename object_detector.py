@@ -47,7 +47,7 @@ class object_detector:
             "/detector_node/recognizer", Int32, queue_size=1)
         self.bridge = CvBridge()
         self.image_sub = rospy.Subscriber(
-            "/raspicam_node/image/compressed", CompressedImage, self.callback, queue_size=1, buff_size=2**24)
+            "/camera/color/image_raw", Image, self.callback, queue_size=1, buff_size=2**24)
 
         self.MODEL_NAME = 'ssd_mobilenet_v1_coco_2017_11_17'
         # DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
@@ -101,9 +101,9 @@ class object_detector:
         try:
                 #### direct conversion to CV2 ####
             np_arr = np.fromstring(data.data, np.uint8)
-            cv_image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+            #cv_image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
             ret = True
-            # cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
+            cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
         except CvBridgeError as e:
             ret = False
             print(e)
